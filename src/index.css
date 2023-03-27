@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+	font-family: 'Orbitron-400';
+	font-weight: 400;
+	src: url('/Orbitron-VariableFont_wght.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Orbitron-500';
+	font-weight: 500;
+	src: url('/Orbitron-VariableFont_wght.ttf') format('truetype');
+}
+
+.absCenter {
+	@apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+}
+
+.flexCenter {
+	@apply flex items-center justify-center;
+}
