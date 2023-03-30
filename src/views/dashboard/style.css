@@ -1,0 +1,40 @@
+.slide-enter {
+	transform: translateX(-100%);
+}
+.slide-enter-active {
+	transform: translateX(0%);
+}
+.slide-exit {
+	transform: translateX(-100%);
+}
+.slide-exit-active {
+	transition: all 0.4s ease-out;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 3;
+  will-change: transform;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: #1f253d;
+  opacity: 0.35;
+  transition-duration: 100ms;
+  z-index: 2;
+  user-select: none;
+}
+
+.react-grid-layout {
+  transition: height 200ms ease;
+	position: relative;
+}
