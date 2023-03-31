@@ -40,6 +40,7 @@ module.exports = {
 		'no-multiple-empty-lines': ['error', { max: 1 }],
 		'prefer-const': 'off',
 		'no-irregular-whitespace': 'off',
+		'react/display-name': 'off',
 
 		// typeScript (https://typescript-eslint.io/rules)
 		'@typescript-eslint/no-unused-vars': 'error',

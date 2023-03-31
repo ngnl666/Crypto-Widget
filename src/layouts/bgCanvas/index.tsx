@@ -12,7 +12,7 @@ interface Istars extends Imouse {
 	vy: number;
 }
 
-export function BgCanvas() {
+export function BgCanvas({ children }: { children: JSX.Element }) {
 	const canvas = useRef<HTMLCanvasElement>(null);
 	const ctx = useRef<CanvasRenderingContext2D | null>(canvas.current ? canvas.current.getContext('2d') : null);
 
@@ -94,7 +94,7 @@ export function BgCanvas() {
 		requestAnimationFrame(tick);
 	}
 
-	function mouseTrack(e: any) {
+	function mouseTrack(e: MouseEvent) {
 		mouse.x = e.clientX;
 		mouse.y = e.clientY;
 	}
@@ -129,11 +129,12 @@ export function BgCanvas() {
 	}, []);
 
 	return (
-		<div className="absolute -z-[10] box-border min-h-[100vh] w-full overflow-hidden bg-primary">
+		<div className="absolute -z-[10] box-border min-h-[100vh] w-full overflow-hidden bg-primary pb-20">
 			{/*  canvas background  */}
 			<canvas ref={canvas} className="absolute top-0 left-0 -z-10"></canvas>
-			<slot></slot>
-			{/* copyright  */}
+			{/*  router slot  */}
+			{children}
+			{/*  copyright  */}
 			<div className="absolute bottom-0 right-0 flex justify-end gap-x-3 pb-4 pr-4 text-slate-300">
 				<a href="https://github.com/ngnl666/Crypto-Dashboard" target="_blank" rel="noreferrer">
 					<img src={githubWhite} alt="github" className="h-5 w-5" />
