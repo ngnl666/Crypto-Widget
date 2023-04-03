@@ -17,6 +17,8 @@ export const setAlert = (text: AlertState['text'], status: AlertState['status'])
 	status,
 });
 
+export const clearAlert = () => ({ type: SET_ALERT, ...initialState });
+
 export default (state: AlertState = initialState, action: Actions) => {
 	switch (action.type) {
 		case SET_ALERT: {

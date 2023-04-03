@@ -14,13 +14,22 @@ import type SvgIcon from '@mui/material/SvgIcon/SvgIcon';
 
 import { GridSystem } from './components/gridSystem';
 import { NavBtn } from './components/navBtn';
-import { signInWithGoogle } from '@/api/firebase/auth';
+import { SlideupDialog } from './components/slideupDialog';
+import { checkIfTokenExpired } from '@/api/firebase/auth';
 import { CSSTransition } from 'react-transition-group';
-import { useState, useRef } from 'react';
+import { RootState } from '@/redux/createStore';
+import { useState, useRef, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAlert } from '@/redux/reducers/alert';
 import './style.scss';
 
 export function Dashboard() {
 	const [showNav, setShowNav] = useState<boolean>(false);
+	const [showLoginDialog, setShowLoginDialog] = useState<boolean>(false);
+	const [user, setUser] = useState<RootState['user']>();
+
+	const dispatch = useDispatch();
+	const userStore = useSelector((state: RootState) => state.user);
 	const nodeRef = useRef(null);
 	interface IconComp {
 		comp: typeof SvgIcon;
@@ -79,11 +88,24 @@ export function Dashboard() {
 		},
 	];
 
-	const handleNav = (name: NavItem['name']) => {
-		if (name === 'Layout') setShowNav((prev) => !prev);
+	const handleNav = async (name: NavItem['name']) => {
+		if (name === 'Layout') {
+			if (await checkIfTokenExpired()) {
+				dispatch(setAlert('Token 已過期，請重新登入！', 'warning'));
+				setShowLoginDialog((prev) => !prev);
+				return;
+			}
+			setShowNav((prev) => !prev);
+		}
 		// if (name === 'Collection') setShowNav((prev) => !prev);
-		if (name === 'Login') signInWithGoogle();
+		if (name === 'Login') {
+			setShowLoginDialog((prev) => !prev);
+		}
 	};
+
+	useEffect(() => {
+		setUser(userStore);
+	}, [userStore]);
 
 	return (
 		<>
@@ -125,13 +147,18 @@ export function Dashboard() {
 						))}
 					</ul>
 					<div className="flex items-center gap-x-4 font-main-bold text-xl">
-						<p className="text-white">Arron</p>
-						<div className="h-10 w-10 rounded-full border-2 border-secondary/60 bg-white">
-							<PersonIcon className="!h-full !w-full text-[#3e4063]" />
+						<p className="text-white">{user?.displayName || 'User01'}</p>
+						<div className="h-10 w-10 overflow-hidden rounded-full border-2 border-secondary/60 bg-white">
+							{user?.photoURL ? (
+								<img className="h-full w-full rounded-full" src={user?.photoURL} alt="user" />
+							) : (
+								<PersonIcon className="!h-full !w-full text-[#3e4063]" />
+							)}
 						</div>
 					</div>
 				</nav>
 				<GridSystem showNav={showNav}></GridSystem>
+				<SlideupDialog open={showLoginDialog} />
 			</div>
 		</>
 	);
