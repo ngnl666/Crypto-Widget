@@ -2,6 +2,8 @@ import RGL, { WidthProvider } from 'react-grid-layout';
 import type { Layout } from 'react-grid-layout';
 import { defaultLayout } from '@/api/firebase/grid';
 import { useState, useMemo, memo, Suspense, lazy, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { RootState } from '@/redux/createStore';
+import { useSelector } from 'react-redux';
 import '../style.scss';
 
 export interface CompLayout extends Layout {
@@ -16,6 +18,7 @@ interface Props {
 }
 
 const GridSystem = forwardRef((props: Props, ref) => {
+	const userStore = useSelector((state: RootState) => state.user);
 	const ReactGridLayout = useMemo(() => WidthProvider(RGL), []);
 
 	/* smallWidget components */
@@ -76,8 +79,8 @@ const GridSystem = forwardRef((props: Props, ref) => {
 	}, [props.selectedLayout]);
 
 	useEffect(() => {
-		setLayout(defaultLayout);
-	}, []);
+		userStore.uid && setLayout(defaultLayout);
+	}, [userStore.uid]);
 
 	return (
 		<>
