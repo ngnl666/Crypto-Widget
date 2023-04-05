@@ -11,7 +11,12 @@ export function AlertPopup() {
 	const { text, status } = alert;
 
 	useEffect(() => {
-		if (text) setTimeout(() => dispatch(clearAlert()), 2500);
+		let timer: NodeJS.Timeout | null = null;
+		if (text) timer = setTimeout(() => dispatch(clearAlert()), 2500);
+
+		return () => {
+			timer && clearTimeout(timer);
+		};
 	}, [alert]);
 
 	if (text && status) {

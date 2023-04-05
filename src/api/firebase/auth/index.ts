@@ -47,6 +47,7 @@ export const signOut = async () => {
 export const checkIfTokenExpired = async () => {
 	try {
 		const user = auth.currentUser;
+
 		if (user) {
 			const idTokenResult = await user.getIdTokenResult();
 			const tokenExpirationTime = idTokenResult.expirationTime;

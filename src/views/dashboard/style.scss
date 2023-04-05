@@ -36,3 +36,10 @@
 	transition: height 200ms ease;
 	position: relative;
 }
+
+.apexcharts-legend {
+	padding-right: 20px !important;
+	&-text {
+		color: white !important;
+	}
+}

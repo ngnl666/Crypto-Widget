@@ -5,9 +5,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import SendIcon from '@mui/icons-material/Send';
 import GoogleIcon from '@mui/icons-material/Google';
-import Slide from '@mui/material/Slide';
-import { TransitionProps } from '@mui/material/transitions';
-import { useEffect, useState, forwardRef } from 'react';
+
+import { SlideupTransition } from '@/components/global/slideupTransition';
 import { useDispatch } from 'react-redux';
 import { setAlert } from '@/redux/reducers/alert';
 import { setUser } from '@/redux/reducers/user';
@@ -15,26 +14,13 @@ import { signInWithGoogle, signInWithEmail } from '@/api/firebase/auth';
 
 interface Props {
 	open: boolean;
+	setShowLoginDialog: (show: boolean) => void;
 }
 
-// handle the slide transition for the dialog
-const Transition = forwardRef(function Transition(
-	props: TransitionProps & {
-		children: React.ReactElement<any, any>;
-	},
-	ref: React.Ref<unknown>,
-) {
-	return <Slide direction="up" ref={ref} {...props} />;
-});
-
-export function SlideupDialog(props: Props) {
-	const [open, setOpen] = useState(false);
-
+export function LoginDialog(props: Props) {
 	const dispatch = useDispatch();
 	const e_mail = 'dadada880131@gmail.com';
 	const pwd = 'asdf5678';
-
-	const handleClose = () => setOpen(false);
 
 	const signIn = async (type: 'email' | 'google') => {
 		const userInfo = await (type === 'email' ? signInWithEmail(e_mail, pwd) : signInWithGoogle());
@@ -45,20 +31,16 @@ export function SlideupDialog(props: Props) {
 		} else {
 			dispatch(setAlert('登入失敗', 'error'));
 		}
-		handleClose();
+		props.setShowLoginDialog(false);
 	};
-
-	useEffect(() => {
-		setOpen(true);
-	}, [props.open]);
 
 	return (
 		<div>
 			<Dialog
-				open={open}
-				TransitionComponent={Transition}
+				open={props.open}
+				TransitionComponent={SlideupTransition}
 				keepMounted
-				onClose={handleClose}
+				onClose={() => props.setShowLoginDialog(false)}
 				aria-describedby="alert-dialog-slide-description"
 				PaperProps={{
 					style: {
@@ -80,7 +62,7 @@ export function SlideupDialog(props: Props) {
 					</div>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleClose}>
+					<Button onClick={() => props.setShowLoginDialog(false)}>
 						<p className="font-main text-white">Close</p>
 					</Button>
 				</DialogActions>
