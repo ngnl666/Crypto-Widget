@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { clearAlert } from '@/redux/reducers/alert';
 import { useDispatch } from 'react-redux';
 
-export function AlertPopup() {
+export default function AlertPopup() {
 	const dispatch = useDispatch();
 	const alert = useSelector((state: RootState) => state.alert);
 	const { text, status } = alert;
