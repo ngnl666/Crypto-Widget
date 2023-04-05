@@ -1,7 +1,7 @@
 import { HashRouter } from 'react-router-dom';
 import { Router } from './routers/index';
 import { BgCanvas } from '@/layouts/bgCanvas/index';
-import AlertPopup from '../src/components/global/alertPopup';
+import AlertPopup from '@/components/global/alertPopup';
 
 function App() {
 	return (
