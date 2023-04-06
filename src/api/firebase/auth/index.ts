@@ -52,7 +52,6 @@ export const checkIfTokenExpired = async () => {
 			const idTokenResult = await user.getIdTokenResult();
 			const tokenExpirationTime = idTokenResult.expirationTime;
 			const now = new Date();
-
 			return now >= new Date(tokenExpirationTime);
 		} else {
 			return true;

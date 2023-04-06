@@ -25,8 +25,8 @@ const News = memo(() => {
 
 	useEffect(() => {
 		const getNewsData = async () => {
-			const news = (await getNews(0)) as News[];
-			setNews(news);
+			const data = await getNews();
+			setNews(data[0] as News[]);
 		};
 		getNewsData();
 	}, []);

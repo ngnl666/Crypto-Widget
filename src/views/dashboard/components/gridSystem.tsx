@@ -68,7 +68,6 @@ const GridSystem = forwardRef((props: Props, ref) => {
 	}, [props.clearLayout]);
 
 	useEffect(() => {
-		// toggle layout ['static', 'isDraggable'] properties
 		setLayout((prev) => {
 			return prev.map((item) => ({ ...item, static: !props.showNav, isDraggable: props.showNav }));
 		});

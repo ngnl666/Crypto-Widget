@@ -46,7 +46,6 @@ export function Dashboard() {
 	const gridRef = useRef(null);
 	const layoutRef = useRef(null);
 	const popperRef = useRef(null);
-
 	interface IconComp {
 		comp: typeof SvgIcon;
 		id: number;

@@ -1,10 +1,11 @@
-import { collection, orderBy, query, getDocs } from 'firebase/firestore';
+import { collection, orderBy, query, getDocs, startAfter, limit, DocumentData } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
-export const getNews = async (page: number) => {
-	const newsCollection = collection(db, 'news');
-	const q = query(newsCollection, orderBy('date', 'desc'));
-	const docSnap = await getDocs(q);
-	const res = docSnap.docs.map((doc) => doc.data());
-	return res.slice(page * 5, page * 5 + 5);
+export const getNews = async (last?: DocumentData) => {
+	const docs = last
+		? query(collection(db, 'news'), orderBy('date', 'desc'), startAfter(last), limit(5))
+		: query(collection(db, 'news'), orderBy('date', 'desc'), limit(5));
+	const docSnap = await getDocs(docs);
+	const result = docSnap.docs.map((doc) => doc.data());
+	return [result, docSnap.docs[docSnap.docs.length - 1]];
 };

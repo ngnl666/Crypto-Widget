@@ -27,7 +27,7 @@ export default function Gas() {
 		getGasPrice();
 		const timer = setInterval(() => {
 			getGasPrice();
-		}, 30000);
+		}, 10000);
 
 		return () => clearInterval(timer);
 	}, []);

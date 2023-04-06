@@ -4,7 +4,7 @@ import { CompLayout } from '@/views/dashboard/components/gridSystem';
 
 export const storeGridImageAndLayout = async (uid: string, file: string, layout: Array<CompLayout>) => {
 	try {
-		// upload grid snapshot to firebase storage
+		// upload grid layout snapshot to firebase storage
 		const timestamp = +new Date();
 		const refDoc = ref(storage, `grid/${uid}/${timestamp}`);
 		await uploadString(refDoc, file, 'data_url');
@@ -27,6 +27,7 @@ const getGridImage = async (uid: string, fileName: string) => {
 		console.log(e);
 	}
 };
+
 export const defaultLayout: Array<CompLayout> = [
 	{
 		w: 6,

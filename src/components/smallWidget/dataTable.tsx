@@ -79,13 +79,8 @@ export default function DataTable() {
 
 	return (
 		<div className="h-full w-full bg-[#5a5c8a]">
-			{/* <Button
-				size="small"
-				onClick={() => {
-					addUserWalletDoc({ uid: userStore.uid, currency: 'crv', value: 100, price: 0.939, change: -0.5 });
-				}}
-			>
-				click
+			{/* <Button size="small" className="-mb-4">
+				<p className="font-main text-white">ADD</p>
 			</Button> */}
 			{Array.isArray(rows) && (
 				<DataGrid
