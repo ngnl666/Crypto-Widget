@@ -1,6 +1,6 @@
 import { storage } from '../firebaseConfig';
 import { ref, getDownloadURL, uploadString } from 'firebase/storage';
-import { CompLayout } from '@/views/dashboard/components/gridSystem';
+import { CompLayout } from '@/views/dashboard';
 
 export const storeGridImageAndLayout = async (uid: string, file: string, layout: Array<CompLayout>) => {
 	try {
@@ -12,7 +12,7 @@ export const storeGridImageAndLayout = async (uid: string, file: string, layout:
 		// store grid layout
 		const url = await getGridImage(uid, timestamp.toString());
 		const grid: Array<Array<CompLayout>> = localStorage.getItem('grid') ? JSON.parse(localStorage.getItem('grid')!) : [];
-		localStorage.setItem('grid', JSON.stringify([...grid, { url, ...layout }]));
+		localStorage.setItem('grid', JSON.stringify([...grid, { url, layout }]));
 		return true;
 	} catch (e: unknown) {
 		console.log(e);

@@ -1,117 +1,102 @@
-import RGL, { WidthProvider } from 'react-grid-layout';
-import type { Layout } from 'react-grid-layout';
-import { defaultLayout } from '@/api/firebase/grid';
-import { useState, useMemo, memo, Suspense, lazy, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { RootState } from '@/redux/createStore';
-import { useSelector } from 'react-redux';
-import '../style.scss';
+import RGL, { Layout, WidthProvider } from 'react-grid-layout';
+import type { CompLayout } from '@/views/dashboard';
+import styled from 'styled-components';
+import { memo, Suspense, lazy } from 'react';
 
-export interface CompLayout extends Layout {
-	comp?: string;
-}
+/* Styled Components */
+const ReactGridLayout = WidthProvider(RGL);
+const StyledGridLayout = styled(ReactGridLayout)`
+	&.react-grid-item {
+		transition: all 200ms ease;
+		transition-property: left, top;
+		&.cssTransforms {
+			transition-property: transform;
+		}
+		&.react-draggable-dragging {
+			transition: none;
+			z-index: 3;
+			will-change: transform;
+		}
+		&.react-grid-placeholder {
+			background: #1f253d;
+			opacity: 0.35;
+			transition-duration: 100ms;
+			z-index: 2;
+			user-select: none;
+		}
+	}
+	&.react-grid-layout {
+		transition: height 200ms ease;
+		position: relative;
+	}
+`;
 
+/* SmallWidget Components */
+const Gas = lazy(() => import('@/components/smallWidget/gas'));
+const DataTable = lazy(() => import('@/components/smallWidget/dataTable'));
+const News = lazy(() => import('@/components/smallWidget/news'));
+const Market = lazy(() => import('@/components/smallWidget/market'));
+
+/* Types */
 interface Props {
-	showNav: boolean;
-	clearLayout: boolean;
-	selectedLayout: CompLayout[];
-	setClearLayout: (status: boolean) => void;
+	layout: CompLayout[];
+	setLayout: (prev: CompLayout[]) => void;
 }
+type Pos = Pick<CompLayout, 'w' | 'h' | 'comp'>;
 
-const GridSystem = forwardRef((props: Props, ref) => {
-	const userStore = useSelector((state: RootState) => state.user);
-	const ReactGridLayout = useMemo(() => WidthProvider(RGL), []);
-
-	/* smallWidget components */
-	const Gas = lazy(() => import('@/components/smallWidget/gas'));
-	const DataTable = lazy(() => import('@/components/smallWidget/dataTable'));
-	const News = lazy(() => import('@/components/smallWidget/news'));
-	const Market = lazy(() => import('@/components/smallWidget/market'));
-
-	type Area = Pick<CompLayout, 'w' | 'h' | 'comp'>;
-
-	const [layout, setLayout] = useState<Array<CompLayout>>([]);
-
-	useImperativeHandle(
-		ref,
-		() => ({
-			layout,
-		}),
-		[layout],
-	);
-
-	const handleOnDrop = (_: Array<Layout>, layoutItem: Layout, e: DragEvent) => {
+const GridSystem = (props: Props) => {
+	const OnLayoutDrop = (_: Array<Layout>, layoutItem: Layout, e: DragEvent) => {
 		if (e.dataTransfer) {
 			if (!e.dataTransfer.getData('text/plain')) return;
-			const area: Area = JSON.parse(e.dataTransfer.getData('text/plain'));
-			setLayout((prev) => {
-				return [...prev, { ...layoutItem, ...area, i: (+new Date()).toString() }];
-			});
+			const pos: Pos = JSON.parse(e.dataTransfer.getData('text/plain'));
+			props.setLayout(getNewLayoutOnDrop(props.layout, layoutItem, pos));
 		}
 	};
 
-	const onLayoutChange = (layout: Array<CompLayout>) => {
-		setLayout((prev: Layout[]) => {
-			return prev.map((item: Layout) => {
-				const target = layout.find((i: Layout) => i.i === item.i);
-				if (target) {
-					item.x = target?.x;
-					item.y = target?.y;
-				}
-				return item;
-			});
+	const getNewLayoutOnDrop = (prevLayout: CompLayout[], layoutItem: Layout, pos: Pos) => {
+		return [...prevLayout, { ...layoutItem, ...pos, i: (+new Date()).toString() }];
+	};
+
+	const onLayoutChange = (tempNewLayout: CompLayout[]) => {
+		props.setLayout(getNewLayoutOnChange(props.layout, tempNewLayout));
+	};
+
+	const getNewLayoutOnChange = (prevLayout: CompLayout[], tempNewLayout: CompLayout[]) => {
+		return prevLayout.map((item: CompLayout) => {
+			const target = tempNewLayout.find((i: CompLayout) => i.i === item.i);
+			if (target) {
+				item.x = target?.x;
+				item.y = target?.y;
+			}
+			return item;
 		});
 	};
 
-	useEffect(() => {
-		props.clearLayout && setLayout([]);
-		props.setClearLayout(false);
-	}, [props.clearLayout]);
-
-	useEffect(() => {
-		setLayout((prev) => {
-			return prev.map((item) => ({ ...item, static: !props.showNav, isDraggable: props.showNav }));
-		});
-	}, [props.showNav]);
-
-	useEffect(() => {
-		setLayout(props.selectedLayout);
-	}, [props.selectedLayout]);
-
-	useEffect(() => {
-		userStore.uid && setLayout(defaultLayout);
-	}, [userStore.uid]);
-
 	return (
 		<>
-			{!layout.length && !props.showNav ? (
-				<div className="flexCenter h-80 w-full bg-secondary/60 hover:bg-[#5e6089]/60">
-					<p className="text-2xl text-white">點擊Layout 並拖曳側欄Icon</p>
-				</div>
-			) : (
-				<ReactGridLayout
-					className="bg-secondary/60"
-					layout={layout}
-					rowHeight={30}
-					isDroppable={true}
-					onDrop={handleOnDrop}
-					onLayoutChange={onLayoutChange}
-					maxRows={15}
-					cols={6}
-				>
-					{layout.map((Component) => (
-						<div key={Component.i}>
-							<Suspense fallback={<div className="h-full w-full animate-pulse rounded-sm bg-primary/60"></div>}>
-								{Component.comp === 'Gas' && <Gas></Gas>}
-								{Component.comp === 'DataTable' && <DataTable></DataTable>}
-								{Component.comp === 'News' && <News></News>}
-								{Component.comp === 'Market' && <Market></Market>}
-							</Suspense>
-						</div>
-					))}
-				</ReactGridLayout>
-			)}
+			<StyledGridLayout
+				className="bg-secondary/60"
+				layout={props.layout}
+				isDroppable={true}
+				rowHeight={30}
+				maxRows={15}
+				cols={6}
+				onDrop={OnLayoutDrop}
+				onLayoutChange={onLayoutChange}
+			>
+				{props.layout.map((Component) => (
+					<div key={Component.i}>
+						<Suspense fallback={<div className="h-full w-full animate-pulse rounded-sm bg-primary/60"></div>}>
+							{Component.comp === 'Gas' && <Gas></Gas>}
+							{Component.comp === 'DataTable' && <DataTable></DataTable>}
+							{Component.comp === 'News' && <News></News>}
+							{Component.comp === 'Market' && <Market></Market>}
+						</Suspense>
+					</div>
+				))}
+			</StyledGridLayout>
 		</>
 	);
-});
+};
 
 export default memo(GridSystem);

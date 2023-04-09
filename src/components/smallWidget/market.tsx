@@ -3,7 +3,17 @@ import { RootState } from '@/redux/createStore';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import ReactApexChart from 'react-apexcharts';
-import '@/views/dashboard/style.scss';
+import styled from 'styled-components';
+
+/* Styled Components */
+const StyledReactApexChart = styled(ReactApexChart)`
+	.apexcharts-legend {
+		padding-right: 20px !important;
+		&-text {
+			color: white !important;
+		}
+	}
+`;
 
 export default function Market() {
 	const userStore = useSelector((state: RootState) => state.user);
@@ -43,7 +53,7 @@ export default function Market() {
 
 	return (
 		<div className="flexCenter h-full w-full bg-secondary">
-			{pieChart.series && <ReactApexChart options={pieChart.options} series={pieChart.series} type="pie" width={380} />}
+			{pieChart.series && <StyledReactApexChart options={pieChart.options} series={pieChart.series} type="pie" width={380} />}
 		</div>
 	);
 }

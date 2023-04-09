@@ -3,6 +3,7 @@ import Popper from '@mui/material/Popper';
 import Fade from '@mui/material/Fade';
 import { Button } from '@mui/material';
 
+/* Types */
 interface Props {
 	open: boolean;
 	popperRef: React.RefObject<HTMLDivElement>;

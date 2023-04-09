@@ -25,18 +25,14 @@ export default function Gas() {
 
 	useEffect(() => {
 		getGasPrice();
-		const timer = setInterval(() => {
-			getGasPrice();
-		}, 10000);
+		const timer = setInterval(() => getGasPrice(), 10000);
 
 		return () => clearInterval(timer);
 	}, []);
 
 	useEffect(() => {
 		setIsUpdate(true);
-		const timer = setTimeout(() => {
-			setIsUpdate(false);
-		}, 1000);
+		const timer = setTimeout(() => setIsUpdate(false), 1000);
 
 		return () => clearTimeout(timer);
 	}, [gasFee]);

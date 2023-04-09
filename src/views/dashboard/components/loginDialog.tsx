@@ -11,13 +11,15 @@ import { useDispatch } from 'react-redux';
 import { setAlert } from '@/redux/reducers/alert';
 import { setUser } from '@/redux/reducers/user';
 import { signInWithGoogle, signInWithEmail } from '@/api/firebase/auth';
+import { memo } from 'react';
 
+/* Types */
 interface Props {
 	open: boolean;
 	setShowLoginDialog: (show: boolean) => void;
 }
 
-export function LoginDialog(props: Props) {
+function LoginDialog(props: Props) {
 	const dispatch = useDispatch();
 	const e_mail = 'dadada880131@gmail.com';
 	const pwd = 'asdf5678';
@@ -70,3 +72,5 @@ export function LoginDialog(props: Props) {
 		</div>
 	);
 }
+
+export default memo(LoginDialog);

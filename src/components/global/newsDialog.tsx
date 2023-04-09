@@ -6,7 +6,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import { SlideupTransition } from '@/components/global/slideupTransition';
 import { News } from '../smallWidget/news';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 interface Props {
 	open: boolean;
@@ -15,6 +15,8 @@ interface Props {
 }
 
 export default function NewsDialog(props: Props) {
+	const location = useLocation();
+
 	return (
 		<>
 			<div>
@@ -33,9 +35,19 @@ export default function NewsDialog(props: Props) {
 					}}
 				>
 					<DialogTitle>
-						<Link to="/news" className="flex items-center text-base text-slate-400 hover:underline">
-							<TurnLeftIcon /> <p className="pt-1">所有新聞</p>
-						</Link>
+						{location.pathname === '/news' ? (
+							<p
+								className="flex cursor-pointer items-center text-base text-slate-400 hover:underline"
+								onClick={() => props.setOpenDialog(false)}
+							>
+								<TurnLeftIcon />
+								所有新聞
+							</p>
+						) : (
+							<Link to="/news" className="flex items-center text-base text-slate-400 hover:underline">
+								<TurnLeftIcon /> <p className="pt-1">所有新聞</p>
+							</Link>
+						)}
 						<p className="text-center tracking-wider text-white">{props.news?.title}</p>
 					</DialogTitle>
 					<DialogContent>

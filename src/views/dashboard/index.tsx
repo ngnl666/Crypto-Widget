@@ -14,47 +14,79 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import type SvgIcon from '@mui/material/SvgIcon/SvgIcon';
 
-import GridSystem from './components/gridSystem';
-import { NavBtn } from './components/navBtn';
-import { LoginDialog } from './components/loginDialog';
-import { CollectionDialog } from './components/collectionDialog';
-import { GridPopper } from './components/gridPopper';
-import { checkIfTokenExpired } from '@/api/firebase/auth';
-import { CSSTransition } from 'react-transition-group';
-import { RootState } from '@/redux/createStore';
-import { useState, useRef, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setAlert } from '@/redux/reducers/alert';
-import { signOut } from '@/api/firebase/auth';
-import { storeGridImageAndLayout } from '@/api/firebase/grid/index';
-import { CompLayout } from './components/gridSystem';
 import html2canvas from 'html2canvas';
-import './style.scss';
+import styled from 'styled-components';
+import LoginDialog from './components/loginDialog';
+import CollectionDialog from './components/collectionDialog';
+import type { Layout } from 'react-grid-layout';
+import { CSSTransition } from 'react-transition-group';
+import { NavBtn } from './components/navBtn';
+import { GridPopper } from './components/gridPopper';
+import { RootState } from '@/redux/createStore';
+import { setAlert } from '@/redux/reducers/alert';
+import { clearUser } from '@/redux/reducers/user';
+import { signOut, checkIfTokenExpired } from '@/api/firebase/auth';
+import { storeGridImageAndLayout, defaultLayout } from '@/api/firebase/grid/index';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState, useRef, useEffect, useCallback, Suspense, lazy } from 'react';
+
+/* Styled Components */
+const SlideMenu = styled.menu`
+	&.slide-enter,
+	.slide-appear {
+		transform: translateX(-100%);
+	}
+	&.slide-enter-active {
+		transform: translateX(0%);
+	}
+	&.slide-exit {
+		transform: translateX(-100%);
+	}
+	&.slide-exit-active {
+		transition: all 0.4s ease-out;
+	}
+`;
+
+/* lazy Component */
+const GridSystem = lazy(() => import('./components/gridSystem'));
+
+/* Types */
+export interface CompLayout extends Layout {
+	comp?: string;
+}
+interface IconComp {
+	comp: typeof SvgIcon;
+	id: number;
+}
+interface SideItem extends IconComp {
+	name: 'Gas' | 'DataTable' | 'News' | 'Market';
+	area: { w: number; h: number; comp: string };
+}
+interface NavItem extends IconComp {
+	name: 'Layout' | 'Collection' | 'Login/out';
+}
 
 export function Dashboard() {
+	const [layout, setLayout] = useState<Array<CompLayout>>([]);
 	const [showNav, setShowNav] = useState<boolean>(false);
-	const [user, setUser] = useState<RootState['user']>();
-	const [selectedLayout, setSelectedLayout] = useState<CompLayout[]>([]);
 	const [showCollectionDialog, setShowCollectionDialog] = useState<boolean>(false);
 	const [showLoginDialog, setShowLoginDialog] = useState<boolean>(false);
 	const [showPopper, setShowPopper] = useState<boolean>(false);
-	const [clearLayout, setClearLayout] = useState<boolean>(false);
+
+	const memoSetShowCollectionDialog = useCallback((value: boolean) => {
+		setShowCollectionDialog(value);
+	}, []);
+	const memoSetShowLoginDialog = useCallback((value: boolean) => {
+		setShowLoginDialog(value);
+	}, []);
 
 	const dispatch = useDispatch();
 	const userStore = useSelector((state: RootState) => state.user);
+
 	const nodeRef = useRef(null);
 	const gridRef = useRef(null);
-	const layoutRef = useRef(null);
 	const popperRef = useRef(null);
-	interface IconComp {
-		comp: typeof SvgIcon;
-		id: number;
-	}
 
-	interface SideItem extends IconComp {
-		name: 'Gas' | 'DataTable' | 'News' | 'Market';
-		area: { w: number; h: number; comp: string };
-	}
 	const sideList: SideItem[] = [
 		{
 			comp: LocalGasStationIcon,
@@ -82,9 +114,6 @@ export function Dashboard() {
 		},
 	];
 
-	interface NavItem extends IconComp {
-		name: 'Layout' | 'Collection' | 'Login/out';
-	}
 	const navList: NavItem[] = [
 		{
 			comp: AppsIcon,
@@ -120,8 +149,8 @@ export function Dashboard() {
 		const result = canvas.toDataURL('image/png');
 
 		// store screenshot to firebase & store layout
-		if (result && user && layoutRef.current) {
-			const res = await storeGridImageAndLayout(user.uid, result, layoutRef.current as Array<CompLayout>);
+		if (result && userStore.uid) {
+			const res = await storeGridImageAndLayout(userStore.uid, result, layout);
 			res ? dispatch(setAlert('收藏成功！', 'success')) : dispatch(setAlert('收藏失敗！', 'error'));
 		} else {
 			dispatch(setAlert('收藏失敗！', 'error'));
@@ -138,7 +167,7 @@ export function Dashboard() {
 			setShowNav((prev) => !prev);
 		}
 		if (name === 'Collection') {
-			if (user?.uid) {
+			if (userStore.uid) {
 				setShowCollectionDialog(true);
 			} else {
 				dispatch(setAlert('Token 已過期，請重新登入！', 'warning'));
@@ -146,12 +175,13 @@ export function Dashboard() {
 			}
 		}
 		if (name === 'Login/out') {
-			if (user?.uid) {
+			if (userStore.uid) {
 				await signOut();
 				localStorage.removeItem('user');
-				setShowNav(false);
 				dispatch(setAlert('登出成功！', 'success'));
-				setUser(undefined);
+				dispatch(clearUser());
+				setShowNav(false);
+				setLayout([]);
 			} else {
 				setShowLoginDialog(true);
 			}
@@ -159,36 +189,38 @@ export function Dashboard() {
 	};
 
 	useEffect(() => {
-		setUser(userStore);
-	}, [userStore]);
+		setLayout((prev) => prev.map((item) => ({ ...item, static: showNav, isDraggable: showNav })));
+	}, [showNav]);
+
+	useEffect(() => {
+		if (userStore.uid) setLayout(defaultLayout);
+	}, [userStore.uid]);
 
 	return (
 		<>
 			<CSSTransition nodeRef={nodeRef} in={showNav} timeout={1000} unmountOnExit appear classNames="slide">
 				{/* sidebar */}
-				<div
+				<SlideMenu
 					ref={nodeRef}
 					className="fixed top-0 bottom-0 left-0 w-20 rounded-tr-xl rounded-br-xl bg-[#1d1e1f]/80 pt-10 duration-300"
 				>
-					<menu>
-						<List className="flex flex-col items-center gap-y-6">
-							{sideList.map((Component) => (
-								<Tooltip title={Component.name} placement="right" key={Component.id}>
-									<ListItem
-										className="h-12 !w-12 translate-x-0 translate-y-0 cursor-pointer rounded-xl bg-secondary"
-										draggable="true"
-										disablePadding
-										onDragStart={(e) => e.dataTransfer.setData('text/plain', JSON.stringify(Component.area))}
-									>
-										<ListItemIcon className="flexCenter !min-w-full">
-											<Component.comp className="text-white" />
-										</ListItemIcon>
-									</ListItem>
-								</Tooltip>
-							))}
-						</List>
-					</menu>
-				</div>
+					<List className="flex flex-col items-center gap-y-6">
+						{sideList.map((Component) => (
+							<Tooltip title={Component.name} placement="right" key={Component.id}>
+								<ListItem
+									className="h-12 !w-12 translate-x-0 translate-y-0 cursor-pointer rounded-xl bg-secondary"
+									draggable="true"
+									disablePadding
+									onDragStart={(e) => e.dataTransfer.setData('text/plain', JSON.stringify(Component.area))}
+								>
+									<ListItemIcon className="flexCenter !min-w-full">
+										<Component.comp className="text-white" />
+									</ListItemIcon>
+								</ListItem>
+							</Tooltip>
+						))}
+					</List>
+				</SlideMenu>
 			</CSSTransition>
 			<div className="mx-auto w-[60%] pt-24 font-main">
 				{/* navBar */}
@@ -197,7 +229,7 @@ export function Dashboard() {
 						{showNav && (
 							<div className="flex gap-x-3 self-center" ref={popperRef}>
 								<CheckCircleIcon className="cursor-pointer text-green-400 hover:opacity-80" onClick={() => setShowPopper(true)} />
-								<CancelIcon className="cursor-pointer text-red-500 hover:opacity-80" onClick={() => setClearLayout(true)} />
+								<CancelIcon className="cursor-pointer text-red-500 hover:opacity-80" onClick={() => setLayout([])} />
 								<span className="text-white">|</span>
 							</div>
 						)}
@@ -209,32 +241,34 @@ export function Dashboard() {
 						))}
 					</ul>
 					<div className="flex items-center gap-x-4 font-main-bold text-xl">
-						<p className="text-white">{user?.displayName || 'Please SignIn'}</p>
+						<p className="text-white">{userStore.displayName || 'Please SignIn'}</p>
 						<div className="h-10 w-10 overflow-hidden rounded-full border-2 border-secondary/60 bg-white">
-							{user?.photoURL ? (
-								<img className="h-full w-full rounded-full" src={user?.photoURL} alt="user" />
+							{userStore.photoURL ? (
+								<img className="h-full w-full rounded-full" src={userStore.photoURL} alt="user" />
 							) : (
 								<PersonIcon className="!h-full !w-full text-[#3e4063]" />
 							)}
 						</div>
 					</div>
 				</nav>
-				<div ref={gridRef}>
-					<GridSystem
-						ref={layoutRef}
-						showNav={showNav}
-						clearLayout={clearLayout}
-						setClearLayout={setClearLayout}
-						selectedLayout={selectedLayout}
-					></GridSystem>
-				</div>
+				<main ref={gridRef}>
+					{layout.length === 0 && !showNav ? (
+						<div className="flexCenter h-80 w-full bg-secondary/60 hover:bg-[#5e6089]/60">
+							<p className="text-2xl text-white">點擊Layout 並拖曳側欄Icon</p>
+						</div>
+					) : (
+						<Suspense fallback={<div className="flexCenter h-80 w-full animate-pulse bg-secondary/60"></div>}>
+							<GridSystem layout={layout} setLayout={setLayout} />
+						</Suspense>
+					)}
+				</main>
 				<CollectionDialog
 					open={showCollectionDialog}
-					setShowCollectionDialog={setShowCollectionDialog}
-					setSelectedLayout={setSelectedLayout}
+					setShowCollectionDialog={memoSetShowCollectionDialog}
+					setLayout={setLayout}
 				/>
-				<LoginDialog open={showLoginDialog} setShowLoginDialog={setShowLoginDialog} />
-				<GridPopper open={showPopper} popperRef={popperRef} closePopper={closePopper} />
+				<LoginDialog open={showLoginDialog} setShowLoginDialog={memoSetShowLoginDialog} />
+				<GridPopper popperRef={popperRef} open={showPopper} closePopper={closePopper} />
 			</div>
 		</>
 	);

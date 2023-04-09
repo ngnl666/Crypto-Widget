@@ -6,29 +6,30 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Carousel from 'react-material-ui-carousel';
 
 import { SlideupTransition } from '@/components/global/slideupTransition';
-import { CompLayout } from './gridSystem';
+import { CompLayout } from '@/views/dashboard';
 import { useDispatch } from 'react-redux';
 import { setAlert } from '@/redux/reducers/alert';
+import { memo } from 'react';
 
+/* Types */
 interface Props {
 	open: boolean;
 	setShowCollectionDialog: (show: boolean) => void;
-	setSelectedLayout: (layout: CompLayout[]) => void;
+	setLayout: (layout: CompLayout[]) => void;
 }
-
 interface CollectionLayout {
 	layout: CompLayout[];
 	url: string;
 }
 
-export function CollectionDialog(props: Props) {
+function CollectionDialog(props: Props) {
 	const dispatch = useDispatch();
 	const collectionLayout: Array<CollectionLayout> | null = localStorage.getItem('grid')
 		? JSON.parse(localStorage.getItem('grid')!)
 		: null;
 
 	const changeLayout = (layout: CompLayout[]) => {
-		props.setSelectedLayout(layout);
+		props.setLayout(layout);
 		props.setShowCollectionDialog(false);
 		dispatch(setAlert('已套用版面', 'success'));
 	};
@@ -91,3 +92,5 @@ export function CollectionDialog(props: Props) {
 		</div>
 	);
 }
+
+export default memo(CollectionDialog);
