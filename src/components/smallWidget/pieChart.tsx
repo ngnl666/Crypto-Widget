@@ -15,7 +15,7 @@ const StyledReactApexChart = styled(ReactApexChart)`
 	}
 `;
 
-export default function Market() {
+export default function PieChart() {
 	const userStore = useSelector((state: RootState) => state.user);
 	const [pieChart, setPieChart] = useState<any>({});
 
@@ -28,19 +28,47 @@ export default function Market() {
 					series: datas.map((item) => item.value),
 					options: {
 						chart: {
-							width: 380,
 							type: 'pie',
 						},
 						labels: datas.map((item) => item.currency),
 						responsive: [
 							{
-								breakpoint: 480,
+								breakpoint: 2561,
 								options: {
 									chart: {
-										width: 200,
+										width: 420,
 									},
+								},
+							},
+							{
+								breakpoint: 1560,
+								options: {
+									chart: {
+										width: 380,
+									},
+								},
+							},
+							{
+								breakpoint: 1280,
+								options: {
+									chart: {
+										width: 320,
+									},
+								},
+							},
+							{
+								breakpoint: 960,
+								options: {
 									legend: {
 										position: 'bottom',
+									},
+								},
+							},
+							{
+								breakpoint: 725,
+								options: {
+									chart: {
+										width: 280,
 									},
 								},
 							},
@@ -53,7 +81,7 @@ export default function Market() {
 
 	return (
 		<div className="flexCenter h-full w-full bg-secondary">
-			{pieChart.series && <StyledReactApexChart options={pieChart.options} series={pieChart.series} type="pie" width={380} />}
+			{pieChart.series && <StyledReactApexChart options={pieChart.options} series={pieChart.series} type="pie" width="100%" />}
 		</div>
 	);
 }

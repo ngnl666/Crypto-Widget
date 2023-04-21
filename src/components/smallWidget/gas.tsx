@@ -41,7 +41,7 @@ export default function Gas() {
 		<>
 			{gasFee && (
 				<div className={`flex h-full w-full gap-x-8 bg-secondary px-4 py-2 ${isUpdate ? 'animate-pulse' : ''}`}>
-					<div className=" font-main-bold text-white">
+					<div className="font-main-bold text-white">
 						<p>Base Fee</p>
 						<p className="mt-4 text-3xl">
 							{gasFee.baseFeePerGas.toFixed(2)}
@@ -55,7 +55,7 @@ export default function Gas() {
 									Priority <span className="text-gray-600">{price.confidence}</span>
 								</p>
 								<p className="text-primary">{price.maxPriorityFeePerGas.toFixed(2)}</p>
-								<p className="text-white">Max Fee</p>
+								<p className="hidden text-white xl:block">Max Fee</p>
 								<p className="text-primary">{price.maxFeePerGas.toFixed(2)}</p>
 							</li>
 						))}

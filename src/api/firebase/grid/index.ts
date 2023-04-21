@@ -14,8 +14,8 @@ export const storeGridImageAndLayout = async (uid: string, file: string, layout:
 		const grid: Array<Array<CompLayout>> = localStorage.getItem('grid') ? JSON.parse(localStorage.getItem('grid')!) : [];
 		localStorage.setItem('grid', JSON.stringify([...grid, { url, layout }]));
 		return true;
-	} catch (e: unknown) {
-		console.log(e);
+	} catch (_) {
+		return false;
 	}
 };
 
@@ -60,7 +60,7 @@ export const defaultLayout: Array<CompLayout> = [
 		moved: false,
 		static: true,
 		isDraggable: false,
-		comp: 'Market',
+		comp: 'PieChart',
 	},
 	{
 		w: 6,
@@ -82,6 +82,6 @@ export const defaultLayout: Array<CompLayout> = [
 		moved: false,
 		static: true,
 		isDraggable: false,
-		comp: 'Market',
+		comp: 'PieChart',
 	},
 ];

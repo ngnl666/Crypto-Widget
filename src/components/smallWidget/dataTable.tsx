@@ -1,10 +1,10 @@
 import Avatar from '@mui/material/Avatar';
-// import Button from '@mui/material/Button';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { getCryptoIcon, getUserWalletDoc } from '@/api/firebase/icons';
 import { RootState } from '@/redux/createStore';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+// import { useNavigate } from 'react-router-dom';
 
 interface UserWalletDoc {
 	change: number;
@@ -29,11 +29,18 @@ const columns: GridColDef[] = [
 			);
 		},
 	},
-	{ field: 'value', headerName: 'Value', width: 130, valueFormatter: (params) => params.value.toLocaleString('en-US') },
+	{
+		field: 'value',
+		headerName: 'Value',
+		width: 130,
+		disableColumnMenu: true,
+		valueFormatter: (params) => params.value.toLocaleString('en-US'),
+	},
 	{
 		field: 'price',
 		headerName: 'Price',
 		width: 130,
+		disableColumnMenu: true,
 		valueFormatter: (params) => params.value.toLocaleString('en-US'),
 	},
 	{
@@ -41,6 +48,7 @@ const columns: GridColDef[] = [
 		headerName: '24h Change',
 		width: 90,
 		align: 'right',
+		disableColumnMenu: true,
 		renderCell: (params) => {
 			return (
 				<>
@@ -59,6 +67,7 @@ const getCryptoIconUrl = async (currency: string) => {
 export default function DataTable() {
 	const [rows, setRows] = useState<UserWalletDoc[]>([]);
 	const userStore = useSelector((state: RootState) => state.user);
+	// const navigate = useNavigate();
 
 	useEffect(() => {
 		async function getRow(uid: string) {
@@ -84,12 +93,17 @@ export default function DataTable() {
 			</Button> */}
 			{Array.isArray(rows) && (
 				<DataGrid
-					sx={{ color: 'white', border: 'none', height: '100%' }}
+					sx={{
+						color: 'white',
+						height: '100%',
+						paddingLeft: '10px',
+					}}
 					rows={rows}
 					columns={columns}
+					checkboxSelection={false}
 					getRowId={(row) => String(row.createdAt)}
+					// onRowClick={() => navigate('/wallet')}
 					hideFooter
-					checkboxSelection
 				/>
 			)}
 		</div>

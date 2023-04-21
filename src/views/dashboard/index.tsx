@@ -5,7 +5,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import DataUsageIcon from '@mui/icons-material/DataUsage';
+// import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import AppsIcon from '@mui/icons-material/Apps';
 import CollectionsBookmarkIcon from '@mui/icons-material/CollectionsBookmark';
 import LoginIcon from '@mui/icons-material/Login';
@@ -59,14 +60,14 @@ interface IconComp {
 	id: number;
 }
 interface SideItem extends IconComp {
-	name: 'Gas' | 'DataTable' | 'News' | 'Market';
+	name: 'Gas' | 'DataTable' | 'News' | 'PieChart';
 	area: { w: number; h: number; comp: string };
 }
 interface NavItem extends IconComp {
 	name: 'Layout' | 'Collection' | 'Login/out';
 }
 
-export function Dashboard() {
+export default function Dashboard() {
 	const [layout, setLayout] = useState<Array<CompLayout>>([]);
 	const [showNav, setShowNav] = useState<boolean>(false);
 	const [showCollectionDialog, setShowCollectionDialog] = useState<boolean>(false);
@@ -83,9 +84,9 @@ export function Dashboard() {
 	const dispatch = useDispatch();
 	const userStore = useSelector((state: RootState) => state.user);
 
-	const nodeRef = useRef(null);
-	const gridRef = useRef(null);
-	const popperRef = useRef(null);
+	const nodeRef = useRef<HTMLDivElement>(null);
+	const gridRef = useRef<HTMLDivElement>(null);
+	const popperRef = useRef<HTMLDivElement>(null);
 
 	const sideList: SideItem[] = [
 		{
@@ -107,10 +108,10 @@ export function Dashboard() {
 			area: { w: 3, h: 8, comp: 'News' },
 		},
 		{
-			comp: QueryStatsIcon,
-			name: 'Market',
+			comp: DataUsageIcon, // QueryStatsIcon
+			name: 'PieChart',
 			id: 3,
-			area: { w: 3, h: 8, comp: 'Market' },
+			area: { w: 3, h: 8, comp: 'PieChart' },
 		},
 	];
 
@@ -146,50 +147,44 @@ export function Dashboard() {
 			allowTaint: true,
 			useCORS: true,
 		});
-		const result = canvas.toDataURL('image/png');
+		const imgUrl = canvas.toDataURL('image/png');
 
 		// store screenshot to firebase & store layout
-		if (result && userStore.uid) {
-			const res = await storeGridImageAndLayout(userStore.uid, result, layout);
-			res ? dispatch(setAlert('收藏成功！', 'success')) : dispatch(setAlert('收藏失敗！', 'error'));
-		} else {
-			dispatch(setAlert('收藏失敗！', 'error'));
-		}
+		const res = await storeGridImageAndLayout(userStore.uid, imgUrl, layout);
+		res ? dispatch(setAlert('收藏成功！', 'success')) : dispatch(setAlert('收藏失敗！', 'error'));
 	};
 
 	const handleNav = async (name: NavItem['name']) => {
-		if (name === 'Layout') {
-			if (await checkIfTokenExpired()) {
-				dispatch(setAlert('Token 已過期，請重新登入！', 'warning'));
-				setShowLoginDialog(true);
-				return;
-			}
-			setShowNav((prev) => !prev);
+		const tokenExpired = await checkIfTokenExpired();
+
+		if (tokenExpired) {
+			dispatch(setAlert('Token 已過期，請重新登入！', 'warning'));
+			setShowLoginDialog(true);
+			return;
 		}
-		if (name === 'Collection') {
-			if (userStore.uid) {
+
+		switch (name) {
+			case 'Layout':
+				setShowNav((prev) => !prev);
+				break;
+			case 'Collection':
 				setShowCollectionDialog(true);
-			} else {
-				dispatch(setAlert('Token 已過期，請重新登入！', 'warning'));
-				setShowLoginDialog(true);
-			}
-		}
-		if (name === 'Login/out') {
-			if (userStore.uid) {
+				break;
+			case 'Login/out':
 				await signOut();
-				localStorage.removeItem('user');
 				dispatch(setAlert('登出成功！', 'success'));
 				dispatch(clearUser());
+				localStorage.removeItem('user');
 				setShowNav(false);
 				setLayout([]);
-			} else {
-				setShowLoginDialog(true);
-			}
+				break;
+			default:
+				break;
 		}
 	};
 
 	useEffect(() => {
-		setLayout((prev) => prev.map((item) => ({ ...item, static: showNav, isDraggable: showNav })));
+		setLayout((prev) => prev.map((item) => ({ ...item, static: !showNav, isDraggable: showNav })));
 	}, [showNav]);
 
 	useEffect(() => {

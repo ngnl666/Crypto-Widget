@@ -10,8 +10,3 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 		<App />
 	</Provider>,
 );
-{
-	/* <React.StrictMode>
-		<App />
-	</React.StrictMode>, */
-}

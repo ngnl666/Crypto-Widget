@@ -35,7 +35,7 @@ const StyledGridLayout = styled(ReactGridLayout)`
 const Gas = lazy(() => import('@/components/smallWidget/gas'));
 const DataTable = lazy(() => import('@/components/smallWidget/dataTable'));
 const News = lazy(() => import('@/components/smallWidget/news'));
-const Market = lazy(() => import('@/components/smallWidget/market'));
+const PieChart = lazy(() => import('@/components/smallWidget/pieChart'));
 
 /* Types */
 interface Props {
@@ -90,7 +90,7 @@ const GridSystem = (props: Props) => {
 							{Component.comp === 'Gas' && <Gas></Gas>}
 							{Component.comp === 'DataTable' && <DataTable></DataTable>}
 							{Component.comp === 'News' && <News></News>}
-							{Component.comp === 'Market' && <Market></Market>}
+							{Component.comp === 'PieChart' && <PieChart></PieChart>}
 						</Suspense>
 					</div>
 				))}
