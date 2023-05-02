@@ -27,6 +27,7 @@ export default function Market() {
 		},
 		stroke: {
 			curve: 'straight',
+			colors: ['#fff'],
 		},
 		title: {
 			text: 'BTC/USDT',
@@ -94,12 +95,13 @@ export default function Market() {
 				prevState.options.xaxis.categories.shift();
 			}
 
+			const strokeColor = prevState.series[0].data[prevState.series[0].data.length - 1] > newPrice ? ['#E4545F'] : ['#51CA84'];
 			const series = [{ name: prevState.series[0].name, data: [...prevState.series[0].data, newPrice] }];
 			const xaxis = {
 				...prevState.options.xaxis,
 				categories: [...prevState.options.xaxis.categories, new Date(newDate).toISOString()],
 			};
-			return { ...prevState, series, options: { ...prevState.options, xaxis } };
+			return { ...prevState, series, options: { ...prevState.options, xaxis, stroke: { colors: strokeColor } } };
 		});
 	};
 
