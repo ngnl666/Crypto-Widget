@@ -6,7 +6,7 @@ import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
-// import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import AppsIcon from '@mui/icons-material/Apps';
 import CollectionsBookmarkIcon from '@mui/icons-material/CollectionsBookmark';
 import LoginIcon from '@mui/icons-material/Login';
@@ -27,7 +27,8 @@ import { RootState } from '@/redux/createStore';
 import { setAlert } from '@/redux/reducers/alert';
 import { clearUser } from '@/redux/reducers/user';
 import { signOut, checkIfTokenExpired } from '@/api/firebase/auth';
-import { storeGridImageAndLayout, defaultLayout } from '@/api/firebase/grid/index';
+import { storeGridImageAndLayout } from '@/api/firebase/grid/index';
+import { defaultLayout } from '@/assets/data/defaultLayout';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useRef, useEffect, useCallback, Suspense, lazy } from 'react';
 
@@ -60,7 +61,7 @@ interface IconComp {
 	id: number;
 }
 interface SideItem extends IconComp {
-	name: 'Gas' | 'DataTable' | 'News' | 'PieChart';
+	name: 'Gas' | 'DataTable' | 'News' | 'PieChart' | 'Market';
 	area: { w: number; h: number; comp: string };
 }
 interface NavItem extends IconComp {
@@ -99,7 +100,7 @@ export default function Dashboard() {
 			comp: BarChartIcon,
 			name: 'DataTable',
 			id: 1,
-			area: { w: 6, h: 6, comp: 'DataTable' },
+			area: { w: 6, h: 9, comp: 'DataTable' },
 		},
 		{
 			comp: NewspaperIcon,
@@ -108,10 +109,16 @@ export default function Dashboard() {
 			area: { w: 3, h: 8, comp: 'News' },
 		},
 		{
-			comp: DataUsageIcon, // QueryStatsIcon
+			comp: DataUsageIcon,
 			name: 'PieChart',
 			id: 3,
 			area: { w: 3, h: 8, comp: 'PieChart' },
+		},
+		{
+			comp: QueryStatsIcon,
+			name: 'Market',
+			id: 1,
+			area: { w: 6, h: 9, comp: 'Market' },
 		},
 	];
 

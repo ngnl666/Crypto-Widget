@@ -36,6 +36,7 @@ const Gas = lazy(() => import('@/components/smallWidget/gas'));
 const DataTable = lazy(() => import('@/components/smallWidget/dataTable'));
 const News = lazy(() => import('@/components/smallWidget/news'));
 const PieChart = lazy(() => import('@/components/smallWidget/pieChart'));
+const Market = lazy(() => import('@/components/smallWidget/market'));
 
 /* Types */
 interface Props {
@@ -91,6 +92,7 @@ const GridSystem = (props: Props) => {
 							{Component.comp === 'DataTable' && <DataTable></DataTable>}
 							{Component.comp === 'News' && <News></News>}
 							{Component.comp === 'PieChart' && <PieChart></PieChart>}
+							{Component.comp === 'Market' && <Market></Market>}
 						</Suspense>
 					</div>
 				))}

@@ -2,6 +2,7 @@ import { getUserWalletDoc } from '@/api/firebase/icons';
 import { RootState } from '@/redux/createStore';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import CoinList from '@/assets/data/coin';
 import ReactApexChart from 'react-apexcharts';
 import styled from 'styled-components';
 
@@ -17,6 +18,7 @@ const StyledReactApexChart = styled(ReactApexChart)`
 
 export default function PieChart() {
 	const userStore = useSelector((state: RootState) => state.user);
+	const priceStore = useSelector((state: RootState) => state.price);
 	const [pieChart, setPieChart] = useState<any>({});
 
 	useEffect(() => {
@@ -25,7 +27,11 @@ export default function PieChart() {
 
 			datas &&
 				setPieChart({
-					series: datas.map((item) => item.value),
+					series: datas.map((item) => {
+						const coin = CoinList.find((coin) => coin.symbol === item.currency);
+						if (!coin) return item.value;
+						return Math.round((priceStore[coin.id]?.usd ?? 1) * item.value);
+					}),
 					options: {
 						chart: {
 							type: 'pie',
@@ -77,7 +83,7 @@ export default function PieChart() {
 				});
 		}
 		getUserWallet(userStore.uid);
-	}, []);
+	}, [priceStore]);
 
 	return (
 		<div className="flexCenter h-full w-full bg-secondary">

@@ -2,6 +2,7 @@ import { combineReducers, legacy_createStore as createStore, applyMiddleware } f
 import createSagaMiddleware from 'redux-saga';
 import alertReducer from './reducers/alert';
 import userReducer from './reducers/user';
+import priceReducer from './reducers/price';
 import { watcherSaga } from './sagas/rootSaga';
 
 export type RootState = ReturnType<typeof rootReducer>;
@@ -9,6 +10,7 @@ export type RootState = ReturnType<typeof rootReducer>;
 const rootReducer = combineReducers({
 	alert: alertReducer,
 	user: userReducer,
+	price: priceReducer,
 });
 
 const sagaMiddleware = createSagaMiddleware();

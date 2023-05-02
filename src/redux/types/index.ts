@@ -10,3 +10,9 @@ export interface UserState {
 	photoURL: string | null;
 	uid: string;
 }
+
+export interface PriceState {
+	[key: string]: {
+		usd: number;
+	};
+}
