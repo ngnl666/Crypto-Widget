@@ -1,4 +1,4 @@
-# Crypto-Widget (still in development)
+# Crypto-Widget
 
 ![Crypto-Widget](https://firebasestorage.googleapis.com/v0/b/v-note-86a34.appspot.com/o/scenes%2F%E6%88%AA%E5%9C%96%202023-04-06%20%E4%B8%8B%E5%8D%889.20.43.png?alt=media&token=b15bb135-da09-4219-be39-3d66f806ca3d)
 
